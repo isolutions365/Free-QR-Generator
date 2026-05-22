@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net default catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reuseable global helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Entity validation helper to prevent update-gaps and shadow fields
+    function isValidProject(data) {
+      return data.id is string && data.id.size() <= 64 &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.name is string && data.name.size() <= 128 &&
+             data.type is string && data.type.size() <= 32 &&
+             data.content is string && data.content.size() <= 2048 &&
+             data.createdAt is string && data.createdAt.size() <= 64 &&
+             data.design is map;
+    }
+
+    function isValidScan(data) {
+      return data.id is string && data.id.size() <= 64 &&
+             data.projectId is string && data.projectId.size() <= 64 &&
+             data.timestamp is string && data.timestamp.size() <= 64 &&
+             data.userId is string && data.userId.size() <= 128;
+    }
+
+    // Projects collection enforcement rules (ABAC model)
+    match /projects/{projectId} {
+      allow create: if isSignedIn() &&
+                      isValidId(projectId) &&
+                      request.resource.data.userId == request.auth.uid &&
+                      isValidProject(request.resource.data);
+
+      allow read: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid);
+
+      allow update: if isSignedIn() &&
+                      isValidId(projectId) &&
+                      resource.data.userId == request.auth.uid &&
+                      request.resource.data.userId == resource.data.userId &&
+                      isValidProject(request.resource.data) &&
+                      request.resource.data.createdAt == resource.data.createdAt &&
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                        'name', 'design', 'type', 'content', 'updatedAt', 
+                        'scanCount', 'trackingEnabled', 'trackingId'
+                      ]);
+
+      allow delete: if isSignedIn() && 
+                      isValidId(projectId) && 
+                      resource.data.userId == request.auth.uid;
+    }
+
+    // Scans collection enforcement rules (Relational optimization)
+    match /scans/{scanId} {
+      allow create: if isValidId(scanId) &&
+                      isValidScan(request.resource.data);
+
+      // O(1) query-safe list reads using ownership verification
+      allow read: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid);
+
+      allow update, delete: if false;
+    }
+  }
+}

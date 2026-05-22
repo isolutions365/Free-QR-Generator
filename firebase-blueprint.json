@@ -1,0 +1,50 @@
+{
+  "entities": {
+    "projects": {
+      "title": "QR Project",
+      "description": "Custom QR design and tracking config saved by users",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "content": { "type": "string" },
+        "design": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "scanCount": { "type": "integer" },
+        "trackingEnabled": { "type": "boolean" },
+        "trackingId": { "type": "string" }
+      },
+      "required": ["id", "userId", "name", "type", "content", "createdAt"]
+    },
+    "scans": {
+      "title": "Scan Log",
+      "description": "Log of clicks & scans processed by the tracking short URLs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "projectId": { "type": "string" },
+        "trackingId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "deviceType": { "type": "string" },
+        "browser": { "type": "string" },
+        "approxLocation": { "type": "string" },
+        "ip": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "projectId", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/projects/{projectId}": {
+      "schema": "projects",
+      "description": "Collection of user-created QR Code projects"
+    },
+    "/scans/{scanId}": {
+      "schema": "scans",
+      "description": "Tracking scan log details"
+    }
+  }
+}

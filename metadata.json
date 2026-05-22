@@ -1,0 +1,6 @@
+{
+  "name": "Free QR Generator",
+  "description": "A production-ready QR code generator with customization colors, logos, scan analytics, saved history, and mobile app configurations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
