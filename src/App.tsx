@@ -524,17 +524,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50/60 leading-normal font-sans antialiased text-slate-800">
       
-      {/* GLOBAL BANNER NOTIFYING API PERSISTENCE LAYER */}
-      <div className="bg-slate-900 text-white py-1 px-4 flex items-center justify-between text-xs font-mono font-medium border-b border-slate-950">
-        <div className="flex items-center space-x-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-          <span>Free QR Engine Server active and securely binding.</span>
-        </div>
-        <div className="flex items-center space-x-3 text-[10px] text-slate-400">
-          <span>PORT: 3000 (Ingress)</span>
-          <span>DB Status: Connected</span>
-        </div>
-      </div>
+
 
       {/* PRIMARY HEADER */}
       <header className="bg-white border-b border-slate-200 flex items-center justify-between px-6 py-4 sticky top-0 z-40 shadow-xs">
